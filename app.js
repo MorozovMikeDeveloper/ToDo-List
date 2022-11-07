@@ -25,10 +25,16 @@ const tasks = [
 
   // Elements UI
   const listContainer = document.querySelector(
-    ".tasks-list-section .list-group",
+    ".tasks-list-section .list-group"
   );
 
+  const form = document.forms["addTask"];
+  const inputTitle = form.elements["title"];
+  const inputBody = form.elements["body"];
+
+  // Events
   renderAllTasks(objOfTasks);
+  form.addEventListener("submit", onFormSubmitHandler);
 
   function renderAllTasks(tasksList) {
     if (!tasksList) {
@@ -45,7 +51,7 @@ const tasks = [
     listContainer.appendChild(fragment);
   }
 
-  function listItemTemplate({ _id, title, body }) {
+  function listItemTemplate({ _id, title, body } = {}) {
     const li = document.createElement("li");
     li.classList.add(
       "list-group-item",
@@ -71,5 +77,34 @@ const tasks = [
     li.appendChild(deleteBtn);
 
     return li;
+  }
+
+  function onFormSubmitHandler(e) {
+    e.preventDefault();
+    const titleValue = inputTitle.value;
+    const bodyValue = inputBody.value;
+
+    if (!titleValue || !bodyValue) {
+      alert("Task title or task body can't be empty!");
+      return;
+    }
+
+    const task = createNewTask(titleValue, bodyValue);
+    const listItem = listItemTemplate(task);
+    listContainer.insertAdjacentElement("afterbegin", listItem);
+    form.reset();
+  }
+
+  function createNewTask(title, body) {
+    const newTask = {
+      title,
+      body,
+      completed: false,
+      _id: `task-${Math.random()}`,
+    };
+
+    objOfTasks[newTask._id] = newTask;
+
+    return { ...newTask };
   }
 })(tasks);
