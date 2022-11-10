@@ -89,7 +89,7 @@ const tasks = [
       "--input-focus-box-shadow": "0 0 0 0.2rem rgba(141, 143, 146, 0.25)",
     },
   };
-  let lastSelectedTheme = localStorage.getItem('app_theme') || 'default';
+  let lastSelectedTheme = localStorage.getItem("app_theme") || "default";
 
   // Elements UI
   const listContainer = document.querySelector(
@@ -103,6 +103,7 @@ const tasks = [
 
   // Events
   setTheme(lastSelectedTheme);
+  checkEmptyList(objOfTasks);
   renderAllTasks(objOfTasks);
   form.addEventListener("submit", onFormSubmitHandler);
   listContainer.addEventListener("click", onDeleteHandler);
@@ -151,6 +152,28 @@ const tasks = [
     li.appendChild(deleteBtn);
 
     return li;
+  }
+
+  function checkEmptyList(tasksList) {
+    if (Object.values(tasksList).length === 0) {
+      renderAlertMessage('The tasks list is empty! Please, add task!');
+    }
+
+    return;
+  }
+
+  function renderAlertMessage(messageText) {
+    const alert = alertMessageTemplate(messageText);
+    listContainer.insertAdjacentElement("afterend", alert);
+  }
+
+  function alertMessageTemplate(messageText) {
+    const messageAlert = document.createElement('div');
+    messageAlert.classList.add('alert', 'alert-primary');
+    messageAlert.setAttribute('role', 'alert');
+    messageAlert.textContent = messageText;
+
+    return messageAlert;
   }
 
   function onFormSubmitHandler(e) {
@@ -220,12 +243,12 @@ const tasks = [
 
     if (!isConfirmed) {
       themeSelect.value = lastSelectedTheme;
-      return; 
+      return;
     }
 
     setTheme(selectedTheme);
     lastSelectedTheme = selectedTheme;
-    localStorage.setItem('app_theme', selectedTheme);
+    localStorage.setItem("app_theme", selectedTheme);
   }
 
   function setTheme(name) {
