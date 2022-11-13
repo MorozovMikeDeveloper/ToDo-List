@@ -1,28 +1,13 @@
 // Form
 // Task list
-const tasks = [
-  {
-    _id: "1",
-    completed: true,
-    body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam reprehenderit asperiores provident, accusantium nihil ratione dolores sapiente id odio exercitationem.",
-    title:
-      "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Similique, dolore.",
-  },
-  {
-    _id: "2",
-    completed: false,
-    body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Explicabo alias ratione amet ullam. Nam laboriosam, alias dolore autem sapiente repudiandae?",
-    title:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, velit?",
-  },
-];
+const tasks = JSON.parse(localStorage.getItem("tasks")) ?? [];
 
 (function (arrOfTasks) {
-  const objOfTasks = arrOfTasks.reduce((acc, task) => {
+    const objOfTasks = arrOfTasks.reduce((acc, task) => {
     acc[task._id] = task;
     return acc;
   }, {});
-
+  
   const themes = {
     default: {
       "--base-text-color": "#212529",
@@ -156,7 +141,8 @@ const tasks = [
 
   function checkEmptyList(tasksList) {
     if (Object.values(tasksList).length === 0) {
-      renderAlertMessage('The tasks list is empty! Please, add task!');
+      const message = renderAlertMessage('The tasks list is empty! Please, add task!');
+      message.setAttribute('id', 'emptyTasksList');
     }
 
     return;
@@ -165,6 +151,8 @@ const tasks = [
   function renderAlertMessage(messageText) {
     const alert = alertMessageTemplate(messageText);
     listContainer.insertAdjacentElement("afterend", alert);
+
+    return alert;
   }
 
   function alertMessageTemplate(messageText) {
@@ -174,6 +162,12 @@ const tasks = [
     messageAlert.textContent = messageText;
 
     return messageAlert;
+  }
+
+  function deleteMessageTemplate(messageTemplate) {
+    messageTemplate.remove();
+
+    return;
   }
 
   function onFormSubmitHandler(e) {
@@ -188,7 +182,14 @@ const tasks = [
 
     const task = createNewTask(titleValue, bodyValue);
     const listItem = listItemTemplate(task);
+    const emptyListMessage = document.querySelector('#emptyTasksList');
+
     listContainer.insertAdjacentElement("afterbegin", listItem);
+    
+    if (emptyListMessage !== null) {
+      deleteMessageTemplate(emptyListMessage);
+    }
+    
     form.reset();
   }
 
@@ -201,6 +202,7 @@ const tasks = [
     };
 
     objOfTasks[newTask._id] = newTask;
+    localStorage.setItem('tasks', JSON.stringify(Object.values(objOfTasks)));
 
     return { ...newTask };
   }
@@ -216,6 +218,7 @@ const tasks = [
     }
 
     delete objOfTasks[id];
+    localStorage.setItem('tasks', JSON.stringify(Object.values(objOfTasks)));
     return isConfirm;
   }
 
@@ -224,6 +227,8 @@ const tasks = [
       return;
     }
     el.remove();
+    
+    checkEmptyList(objOfTasks);
   }
 
   function onDeleteHandler({ target }) {
